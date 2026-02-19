@@ -88,7 +88,13 @@ async def requests_add(interaction: discord.Interaction, month: int, day: int, t
 @discord.app_commands.describe(time="24h time (H:MM)")
 @discord.app_commands.describe(class_="Class")
 async def requests_addfor(interaction: discord.Interaction, user: discord.User, month: int, day: int, time: str, class_: str):
-    await requests_add_impl(interaction, str(user.id), month, day, time, class_)
+    if await users_manager.query_admin(str(interaction.user.id)):
+        await requests_add_impl(interaction, str(user.id), month, day, time, class_)
+    else:
+        await interaction.response.send_message(
+            "You do not have permission to do that.",
+            ephemeral=interaction.guild is not None
+        )
 
 async def requests_add_impl(interaction: discord.Interaction, user: str, month: int, day: int, time: str, class_: str):
     timezone = await users_manager.query_timezone(str(interaction.user.id))
